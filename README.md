@@ -48,6 +48,7 @@ https://github.com/persiafighter/Rocket-Rules/raw/master/bin/Release/RocketRules
 **V1.0.1.0** -
 
 * Added option to enable display of rules in chat on player connect.
+* Added logging of current settings in console.
 * Changed console logging color.
 
 **V1.0.0.0** - Created the plugin.
