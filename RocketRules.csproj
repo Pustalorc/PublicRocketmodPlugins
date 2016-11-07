@@ -36,14 +36,17 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>References\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.API">
-      <HintPath>References\Rocket.API.dll</HintPath>
+    <Reference Include="Rocket.API, Version=2.6.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\GitHub\Airdrop-Manager\lib\Rocket.API.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Core">
-      <HintPath>References\Rocket.Core.dll</HintPath>
+    <Reference Include="Rocket.Core, Version=2.4.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\GitHub\Airdrop-Manager\lib\Rocket.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Unturned">
-      <HintPath>References\Rocket.Unturned.dll</HintPath>
+    <Reference Include="Rocket.Unturned, Version=4.9.8.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\GitHub\Airdrop-Manager\lib\Rocket.Unturned.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

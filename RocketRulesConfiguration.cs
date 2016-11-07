@@ -17,6 +17,7 @@ namespace Rocket_Rules
         public string RuleColor2;
         public string RuleColor3;
         public string RuleColor4;
+        public bool DisplayOnConnect;
 
         public void LoadDefaults()
         {
@@ -28,6 +29,7 @@ namespace Rocket_Rules
             RuleColor2 = "Blue";
             RuleColor3 = "Green";
             RuleColor4 = "Yellow";
+            DisplayOnConnect = false;
         }
     }
 }
