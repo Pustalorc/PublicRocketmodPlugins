@@ -31,7 +31,7 @@ namespace Rocket_Rules
 
         public string Syntax
         {
-            get { return "<player>"; }
+            get { return ""; }
         }
 
         public List<string> Aliases
