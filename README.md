@@ -2,7 +2,7 @@
 
 Version: Public 1.0.0.0
 
-
+[![Build status](https://ci.appveyor.com/api/projects/status/pb6sp9f67e4dj9is?svg=true)](https://ci.appveyor.com/project/persiafighter/rocket-rules)
 
 Last Update: November 7, 2016
 
@@ -38,7 +38,9 @@ Last Update: November 7, 2016
 
 #Download:
 
+https://github.com/persiafighter/Rocket-Rules/raw/master/bin/Release/RocketRules.dll
 
+**Rocketmod download will be here soon**
 
 #Changelog:
 
