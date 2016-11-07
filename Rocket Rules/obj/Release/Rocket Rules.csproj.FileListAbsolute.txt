@@ -1,0 +1,11 @@
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Rocket Rules.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Rocket Rules.pdb
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Assembly-CSharp-firstpass.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Assembly-CSharp.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Rocket.API.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Rocket.Core.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\Rocket.Unturned.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\bin\Release\UnityEngine.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\obj\Release\Rocket Rules.dll
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\obj\Release\Rocket Rules.pdb
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\Rocket Rules\obj\Release\Rocket Rules.csprojResolveAssemblyReference.cache
