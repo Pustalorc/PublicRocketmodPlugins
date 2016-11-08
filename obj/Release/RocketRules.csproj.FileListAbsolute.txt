@@ -6,6 +6,6 @@ C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\bin\Release\
 C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\bin\Release\Rocket.Core.dll
 C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\bin\Release\Rocket.Unturned.dll
 C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\bin\Release\UnityEngine.dll
-C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\obj\Release\RocketRules.csprojResolveAssemblyReference.cache
 C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\obj\Release\RocketRules.dll
 C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\obj\Release\RocketRules.pdb
+C:\Users\vpastor\Documents\Visual Studio 2015\Projects\Rocket Rules\obj\Release\RocketRules.csprojResolveAssemblyReference.cache

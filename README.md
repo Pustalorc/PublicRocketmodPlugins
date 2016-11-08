@@ -1,10 +1,10 @@
 ----------- Rocket Rules -----------
 
-Version: Public 1.0.1.0
+Version: Public 2.0.0.0
 
 [![Build status](https://ci.appveyor.com/api/projects/status/pb6sp9f67e4dj9is?svg=true)](https://ci.appveyor.com/project/persiafighter/rocket-rules)
 
-Last Update: November 7, 2016
+Last Update: November 8, 2016
 
 --
 
@@ -15,26 +15,55 @@ Last Update: November 7, 2016
 #Translation file
 
         <?xml version="1.0" encoding="utf-8"?>
-        <Translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <Translation Id="rule1" Value="{0}" />
-          <Translation Id="rule2" Value="{0}" />
-          <Translation Id="rule3" Value="{0}" />
-          <Translation Id="rule4" Value="{0}" />
-        </Translations>
+	<Translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  <Translation Id="rule" Value="{0}" />
+	  <Translation Id="pages" Value="Next page: &quot;/rules {0}&quot;." />
+	  <Translation Id="endofrules" Value="You have reached the end of the rules." />
+	</Translations>
 
 #Config file
 
         <?xml version="1.0" encoding="utf-8"?>
 	<RocketRulesConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	  <Rule1>Example Rule 1</Rule1>
-	  <Rule2>Example Rule 2</Rule2>
-	  <Rule3>Example Rule 3</Rule3>
-	  <Rule4>Example Rule 4</Rule4>
-	  <RuleColor1>Red</RuleColor1>
-	  <RuleColor2>Blue</RuleColor2>
-	  <RuleColor3>Green</RuleColor3>
-	  <RuleColor4>Yellow</RuleColor4>
 	  <DisplayOnConnect>false</DisplayOnConnect>
+	  <Rules>
+	    <Rule>
+	      <configText>Example Rule 1</configText>
+	      <configColor>
+	        <r>1</r>
+	        <g>0.921568632</g>
+	        <b>0.0156862754</b>
+	        <a>1</a>
+	      </configColor>
+	    </Rule>
+	    <Rule>
+	      <configText>Example Rule 2</configText>
+	      <configColor>
+	        <r>0</r>
+	        <g>1</g>
+	        <b>0</b>
+	        <a>1</a>
+	      </configColor>
+	    </Rule>
+	    <Rule>
+	      <configText>Example Rule 3</configText>
+	      <configColor>
+	        <r>1</r>
+	        <g>0</g>
+	        <b>0</b>
+	        <a>1</a>
+	      </configColor>
+	    </Rule>
+	    <Rule>
+	      <configText>Example Rule 4</configText>
+	      <configColor>
+	        <r>0</r>
+	        <g>0</g>
+	        <b>1</b>
+	        <a>1</a>
+	      </configColor>
+	    </Rule>
+	  </Rules>
 	</RocketRulesConfiguration>
 
 #Download:
@@ -44,6 +73,14 @@ https://github.com/persiafighter/Rocket-Rules/raw/master/bin/Release/RocketRules
 **Rocketmod download will be here soon**
 
 #Changelog:
+
+**V2.0.0.0** - 
+
+* Increased ammount of rules. Pasting multiple more <Rule>...</Rule> settings allows for more rules.
+* Added paging for when there is more than 3 rules.
+* Added more notifications.
+* Simplified translations.
+* Fixed some minor errors (including command execution + syntax)
 
 **V1.0.1.0** -
 
