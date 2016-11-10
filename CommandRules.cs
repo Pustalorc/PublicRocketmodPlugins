@@ -154,7 +154,7 @@ namespace Rocket_Rules
             {
                 return new List<string>
               {
-                  "help"
+                  "rules"
               };
             }
         }

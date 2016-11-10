@@ -1,6 +1,6 @@
 ----------- Rocket Rules -----------
 
-Version: Public 2.0.0.0
+Version: Public 2.0.0.1
 
 [![Build status](https://ci.appveyor.com/api/projects/status/pb6sp9f67e4dj9is?svg=true)](https://ci.appveyor.com/project/persiafighter/rocket-rules)
 
@@ -73,6 +73,11 @@ https://github.com/persiafighter/Rocket-Rules/raw/master/bin/Release/RocketRules
 **Rocketmod download will be here soon**
 
 #Changelog:
+
+**V2.0.0.1** - 
+
+* Fixed error for the permissions for the command
+* Removed temporary files/non used files
 
 **V2.0.0.0** - 
 
