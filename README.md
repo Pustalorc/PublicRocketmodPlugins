@@ -70,7 +70,7 @@ Last Update: November 8, 2016
 
 https://github.com/persiafighter/Rocket-Rules/raw/master/bin/Release/RocketRules.dll
 
-**Rocketmod download will be here soon**
+https://dev.rocketmod.net/plugins/rules/
 
 #Changelog:
 
