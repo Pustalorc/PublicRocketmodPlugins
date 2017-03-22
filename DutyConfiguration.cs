@@ -8,6 +8,10 @@ namespace EFG.Duty
         public bool RemoveAdminOnLogout;
         public bool AllowDutyCheck;
         public string MessageColor;
+        public string HelperGroupName;
+        public string ModeratorGroupName;
+        public string AdminGroupName;
+
 
         public void LoadDefaults()
         {
@@ -15,6 +19,9 @@ namespace EFG.Duty
             RemoveAdminOnLogout = true;
             AllowDutyCheck = true;
             MessageColor = "red";
+            HelperGroupName = "Helper";
+            ModeratorGroupName = "Moderator";
+            AdminGroupName = "Administrator";
         }
     }
 }

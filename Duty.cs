@@ -5,6 +5,10 @@ using Rocket.Core.Plugins;
 using Rocket.API.Collections;
 using UnityEngine;
 using Rocket.API;
+using Rocket.Core.Permissions;
+using Rocket.Core;
+using System.Collections.Generic;
+using Rocket.API.Serialisation;
 
 namespace EFG.Duty
 {
@@ -38,7 +42,7 @@ namespace EFG.Duty
             Rocket.Core.Logging.Logger.LogWarning("Duty has been unloaded!");
         }
 
-        public void duty(UnturnedPlayer caller)
+        public void DoDuty(UnturnedPlayer caller)
         {
             if (caller.IsAdmin)
             {
@@ -55,7 +59,73 @@ namespace EFG.Duty
             }
         }
 
-        public void cduty(UnturnedPlayer cplayer, IRocketPlayer caller)
+        public void Admin(IRocketPlayer caller)
+        {
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
+            string GroupName = Configuration.Instance.AdminGroupName;
+            List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(caller, true);
+            foreach (RocketPermissionsGroup Groups in PlayerGroups)
+            {
+                if (Groups.Id == GroupName)
+                {
+                    Permissions.RemovePlayerFromGroup(GroupName, caller);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("off_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+            }
+            RocketPermissionsGroup Group = Permissions.GetGroup(GroupName);
+            if (Group != null)
+            {
+                Permissions.AddPlayerToGroup(GroupName, caller);
+                if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("on_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+            }
+        }
+
+        public void Moderator(IRocketPlayer caller)
+        {
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
+            string GroupName = Configuration.Instance.ModeratorGroupName;
+            List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(caller, true);
+            foreach (RocketPermissionsGroup Groups in PlayerGroups)
+            {
+                if (Groups.Id == GroupName)
+                {
+                    Permissions.RemovePlayerFromGroup(GroupName, caller);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("off_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+            }
+            RocketPermissionsGroup Group = Permissions.GetGroup(GroupName);
+            if (Group != null)
+            {
+                Permissions.AddPlayerToGroup(GroupName, caller);
+                if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("on_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+            }
+        }
+
+        public void Helper(IRocketPlayer caller)
+        {
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
+            string GroupName = Configuration.Instance.HelperGroupName;
+            List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(caller, true);
+            foreach (RocketPermissionsGroup Groups in PlayerGroups)
+            {
+                if (Groups.Id == GroupName)
+                {
+                    Permissions.RemovePlayerFromGroup(GroupName, caller);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("off_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+            }
+            RocketPermissionsGroup Group = Permissions.GetGroup(GroupName);
+            if (Group != null)
+            {
+                Permissions.AddPlayerToGroup(GroupName, caller);
+                if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("on_duty_message", caller.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+            }
+        }
+
+        public void CDuty(UnturnedPlayer cplayer, IRocketPlayer caller)
         {
             if (cplayer != null)
             {

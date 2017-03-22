@@ -23,7 +23,7 @@ namespace EFG.Duty
             else if (command.Length > 0)
             {
                 UnturnedPlayer cplayer = UnturnedPlayer.FromName(command[0]);
-                Duty.Instance.cduty(cplayer, caller);
+                Duty.Instance.CDuty(cplayer, caller);
             }
         }
 
