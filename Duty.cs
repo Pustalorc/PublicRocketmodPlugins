@@ -127,12 +127,13 @@ namespace EFG.Duty
 
         public void CDuty(UnturnedPlayer cplayer, IRocketPlayer caller)
         {
-            if (cplayer != null)
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
+            if (Configuration.Instance.AllowDutyCheck)
             {
-                if (cplayer.IsAdmin)
+                if (cplayer != null)
                 {
                     Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Checking Duty");
-                    if (Configuration.Instance.AllowDutyCheck)
+                    if (cplayer.IsAdmin)
                     {
                         Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Cplayer Admin Found.");
                         if (caller is ConsolePlayer)
@@ -143,46 +144,40 @@ namespace EFG.Duty
                         {
                             UnturnedChat.Say(Instance.Translate("check_on_duty_message", caller.DisplayName, cplayer.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
                         }
+                        return;
                     }
-                    else if (Configuration.Instance.AllowDutyCheck == false)
+                    List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(cplayer, true);
+                    foreach (RocketPermissionsGroup Groups in PlayerGroups)
                     {
-                        Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Unable To Check Duty. Configuration Is Set To Be Disabled.");
-                        if (caller is UnturnedPlayer)
+                        if (Groups.Id == Configuration.Instance.AdminGroupName || Groups.Id == Configuration.Instance.ModeratorGroupName || Groups.Id == Configuration.Instance.HelperGroupName)
                         {
-                            UnturnedChat.Say(caller, "Unable To Check Duty. Configuration Is Set To Be Disabled.");
+                            Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Cplayer Admin Found.");
+                            if (caller is ConsolePlayer)
+                            {
+                                UnturnedChat.Say(Instance.Translate("check_on_duty_message", "Console", cplayer.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                            }
+                            else if (caller is UnturnedPlayer)
+                            {
+                                UnturnedChat.Say(Instance.Translate("check_on_duty_message", caller.DisplayName, cplayer.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                            }
                         }
                     }
                 }
-                else if (cplayer.IsAdmin == false)
+                else if (cplayer == null)
                 {
-                    if (Configuration.Instance.AllowDutyCheck)
+                    Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Player is not online or his name is invalid.");
+                    if (caller is UnturnedPlayer)
                     {
-                        Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Cplayer Admin Not Found");
-                        if (caller is ConsolePlayer)
-                        {
-                            UnturnedChat.Say(Instance.Translate("check_off_duty_message", "Console", cplayer.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
-                        }
-                        else if (caller is UnturnedPlayer)
-                        {
-                            UnturnedChat.Say(Instance.Translate("check_off_duty_message", caller.DisplayName, cplayer.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
-                        }
-                    }
-                    else if (Configuration.Instance.AllowDutyCheck == false)
-                    {
-                        Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Unable To Check Duty. Configuration Is Set To Be Disabled.");
-                        if (caller is UnturnedPlayer)
-                        {
-                            UnturnedChat.Say(caller, "Unable To Check Duty. Configuration Is Set To Be Disabled.");
-                        }
+                        UnturnedChat.Say(caller, "Player is not online or his name is invalid.");
                     }
                 }
             }
-            else if (cplayer == null)
+            else if (!Configuration.Instance.AllowDutyCheck)
             {
-                Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Player is not online or his name is invalid.");
+                Rocket.Core.Logging.Logger.LogWarning("Duty Debug: Unable To Check Duty. Configuration Is Set To Be Disabled.");
                 if (caller is UnturnedPlayer)
                 {
-                    UnturnedChat.Say(caller, "Player is not online or his name is invalid.");
+                    UnturnedChat.Say(caller, "Unable To Check Duty. Configuration Is Set To Be Disabled.");
                 }
             }
         }
@@ -198,19 +193,42 @@ namespace EFG.Duty
                     {"off_duty_message", "{0} is now off duty."},
                     {"check_on_duty_message", "{0} has confirmed that {1} is on duty."},
                     {"check_off_duty_message", "{0} has confirmed that {1} is not on duty."},
+                    {"not_enough_permissions", "You do not have the correct permissions to use duty."}
                 };
                     
             }
         }
         void PlayerConnected(UnturnedPlayer player)
         {
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
             if (player.IsAdmin)
             {
                 if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_login_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                return;
+            }
+            List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(player, true);
+            foreach (RocketPermissionsGroup Groups in PlayerGroups)
+            {
+                if (Groups.Id == Configuration.Instance.AdminGroupName)
+                {
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_login_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+                else if (Groups.Id == Configuration.Instance.ModeratorGroupName)
+                {
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_login_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+                else if (Groups.Id == Configuration.Instance.HelperGroupName)
+                {
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_login_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
             }
         }
         void PlayerDisconnected(UnturnedPlayer player)
         {
+            RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>(); ;
             if (player.IsAdmin)
             {
                 if (Configuration.Instance.RemoveAdminOnLogout)
@@ -218,10 +236,34 @@ namespace EFG.Duty
                     player.Admin(false);
                     player.Features.GodMode = false;
                     player.Features.VanishMode = false;
-                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logout_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logoff_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
                 }
 
-                if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logout_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logoff_message", player.CharacterName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                return;
+            }
+            List<RocketPermissionsGroup> PlayerGroups = Permissions.GetGroups(player, true);
+            foreach (RocketPermissionsGroup Groups in PlayerGroups)
+            {
+                if (Groups.Id == Configuration.Instance.AdminGroupName)
+                {
+                    if (Configuration.Instance.RemoveAdminOnLogout) Permissions.RemovePlayerFromGroup(Configuration.Instance.AdminGroupName, player);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logoff_message", player.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+                else if (Groups.Id == Configuration.Instance.ModeratorGroupName)
+                {
+                    if (Configuration.Instance.RemoveAdminOnLogout) Permissions.RemovePlayerFromGroup(Configuration.Instance.ModeratorGroupName, player);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logoff_message", player.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
+                else if (Groups.Id == Configuration.Instance.HelperGroupName)
+                {
+                    if (Configuration.Instance.RemoveAdminOnLogout) Permissions.RemovePlayerFromGroup(Configuration.Instance.HelperGroupName, player);
+                    if (Configuration.Instance.EnableServerAnnouncer) UnturnedChat.Say(Instance.Translate("admin_logoff_message", player.DisplayName), UnturnedChat.GetColorFromName(Instance.Configuration.Instance.MessageColor, Color.red));
+                    return;
+                }
             }
         }
     }
