@@ -1,16 +1,10 @@
-﻿using Rocket;
-using Rocket.API.Collections;
+﻿using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 using Rocket.Unturned;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Events;
 using Rocket.Unturned.Player;
-using Rocket.Unturned.Plugins;
-using SDG;
-using Steamworks;
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using UnityEngine;
 
 namespace Rocket_Rules
@@ -20,7 +14,7 @@ namespace Rocket_Rules
         public static RocketRules Instance;
         public bool configDisplayOnConnect;
         public string[] StoredRulesText;
-        public Color[] StoredRulesColor;
+        public string[] StoredRulesColor;
         public List<IngameRules> configRules;
         public int numRules;
         public int extraRules;
@@ -40,11 +34,11 @@ namespace Rocket_Rules
         protected override void Load()
         {
             Instance = this;
-            this.configRules = RocketRules.Instance.Configuration.Instance.Rules;
-            this.numRules = configRules.Count;
-            this.Pages = (numRules / 3) + 1;
-            this.extraRules = numRules % 3;
-            StoredRulesColor = new Color[numRules];
+            configRules = Instance.Configuration.Instance.Rules;
+            numRules = configRules.Count;
+            Pages = (numRules / 3) + 1;
+            extraRules = numRules % 3;
+            StoredRulesColor = new string[numRules];
             StoredRulesText = new string[numRules];
             int b = 0;
             foreach (IngameRules color in configRules)
@@ -85,25 +79,25 @@ namespace Rocket_Rules
             {
                 if (numRules == 1)
                 {
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), StoredRulesColor[0]);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), UnturnedChat.GetColorFromHex(StoredRulesColor[0]).Value);
                 }
                 else if (numRules == 2)
                 {
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), StoredRulesColor[0]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), StoredRulesColor[1]);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), UnturnedChat.GetColorFromHex(StoredRulesColor[0]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), UnturnedChat.GetColorFromHex(StoredRulesColor[1]).Value);
                 }
                 else if (numRules == 3)
                 {
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), StoredRulesColor[0]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), StoredRulesColor[1]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[2]), StoredRulesColor[2]);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), UnturnedChat.GetColorFromHex(StoredRulesColor[0]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), UnturnedChat.GetColorFromHex(StoredRulesColor[1]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[2]), UnturnedChat.GetColorFromHex(StoredRulesColor[2]).Value);
                 }
                 else if (numRules >= 4)
                 {
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), StoredRulesColor[0]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), StoredRulesColor[1]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[2]), StoredRulesColor[2]);
-                    UnturnedChat.Say(player, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[3]), StoredRulesColor[3]);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[0]), UnturnedChat.GetColorFromHex(StoredRulesColor[0]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[1]), UnturnedChat.GetColorFromHex(StoredRulesColor[1]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[2]), UnturnedChat.GetColorFromHex(StoredRulesColor[2]).Value);
+                    UnturnedChat.Say(player, Instance.Translations.Instance.Translate("rule", StoredRulesText[3]), UnturnedChat.GetColorFromHex(StoredRulesColor[3]).Value);
                 }
             }
         }
@@ -112,6 +106,6 @@ namespace Rocket_Rules
     {
         public IngameRules() { }
         public string configText;
-        public Color configColor;
+        public string configColor;
     }
 }

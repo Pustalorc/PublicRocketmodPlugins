@@ -16,10 +16,10 @@ namespace Rocket_Rules
             DisplayOnConnect = false;
             Rules = new List<IngameRules>
             {
-                new IngameRules { configText = "Example Rule 1", configColor = Color.yellow },
-                new IngameRules { configText = "Example Rule 2", configColor = Color.green },
-                new IngameRules { configText = "Example Rule 3", configColor = Color.red },
-                new IngameRules { configText = "Example Rule 4", configColor = Color.blue }
+                new IngameRules { configText = "Example Rule 1", configColor = "FFFF00" },
+                new IngameRules { configText = "Example Rule 2", configColor = "00FF00" },
+                new IngameRules { configText = "Example Rule 3", configColor = "FF0000" },
+                new IngameRules { configText = "Example Rule 4", configColor = "0000FF" }
             };
         }
     }

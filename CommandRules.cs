@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using Rocket.API;
-using Rocket.Unturned.Player;
-using Rocket.Unturned;
-using Rocket.Unturned.Commands;
 using Rocket.Unturned.Chat;
 
 namespace Rocket_Rules
@@ -43,7 +37,7 @@ namespace Rocket_Rules
         {
             bool error = false;
             string[] StoredRulesText = new string[RocketRules.Instance.StoredRulesText.Length];
-            Color[] StoredRulesColor = new Color[RocketRules.Instance.StoredRulesColor.Length];
+            string[] StoredRulesColor = new string[RocketRules.Instance.StoredRulesColor.Length];
             StoredRulesText = RocketRules.Instance.StoredRulesText;
             StoredRulesColor = RocketRules.Instance.StoredRulesColor;
             int numRules = RocketRules.Instance.numRules;
@@ -104,7 +98,7 @@ namespace Rocket_Rules
                                 }
                                 if (reminder0 == false && reminder1 == false && reminder2 == false)
                                 {
-                                    UnturnedChat.Say(caller, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[i - (CommandPage - 1)]), StoredRulesColor[i - (CommandPage - 1)]);
+                                    UnturnedChat.Say(caller, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[i - (CommandPage - 1)]), UnturnedChat.GetColorFromHex(StoredRulesColor[i - (CommandPage - 1)]).Value);
                                 }
                             }
                             reminder0 = false;
@@ -130,7 +124,7 @@ namespace Rocket_Rules
                                 }
                                 else if (counter <= extraRules)
                                 {
-                                    UnturnedChat.Say(caller, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[i - (CommandPage - 1)]), StoredRulesColor[i - (CommandPage - 1)]);
+                                    UnturnedChat.Say(caller, RocketRules.Instance.Translations.Instance.Translate("rule", StoredRulesText[i - (CommandPage - 1)]), UnturnedChat.GetColorFromHex(StoredRulesColor[i - (CommandPage - 1)]).Value);
                                 }
                                 counter = counter + 1;
                             }
