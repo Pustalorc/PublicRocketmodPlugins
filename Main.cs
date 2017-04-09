@@ -17,7 +17,7 @@ namespace RobnRaid
                 return new TranslationList()
                 {
                     { "rob_translation", "{0} is robbing {1} at {2}" },
-                    { "raid_translation", "{0} is raiding a base at {2}" },
+                    { "raid_translation", "{0} is raiding a base at {1}" },
                 };
             }
         }
