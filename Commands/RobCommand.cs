@@ -1,20 +1,12 @@
 ﻿using Rocket.API;
-using Rocket.API.Serialisation;
-using Rocket.Core.Logging;
 using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
-using SDG.Unturned;
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace RobnRaid
 {
     public class RobCommand : IRocketCommand
     {
-        public static RobnRaid Instance;
-        public Color color;
-
         public AllowedCaller AllowedCaller
         {
             get { return AllowedCaller.Player; }
@@ -42,14 +34,21 @@ namespace RobnRaid
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
-            UnturnedPlayer player = (UnturnedPlayer)caller;
-            if (command.Length == 2)
+            if (caller != null)
             {
-                UnturnedChat.Say("rob_translation", color);
-            }
-            else
-            {
-                UnturnedChat.Say(player, "rob_usage");
+                UnturnedPlayer player = (UnturnedPlayer)caller;
+                if (command.Length == 2)
+                {
+                    UnturnedPlayer Target = UnturnedPlayer.FromName(command[0]);
+                    if (Target != null)
+                    {
+                        UnturnedChat.Say(RobnRaid.Instance.Translate("rob_translation", player.DisplayName, Target.DisplayName, command[1]), RobnRaid.Instance.color);
+                    }
+                }
+                else
+                {
+                    UnturnedChat.Say(player, RobnRaid.Instance.Translate("rob_usage"));
+                }
             }
         }
 
