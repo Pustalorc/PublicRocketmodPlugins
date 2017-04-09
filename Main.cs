@@ -18,6 +18,8 @@ namespace RobnRaid
                 {
                     { "rob_translation", "{0} is robbing {1} at {2}" },
                     { "raid_translation", "{0} is raiding a base at {1}" },
+                    { "raid_usage", "Error: Try /raid <location>" },
+                    { "rob_usage", "Error: Try /rob <player> <location>" },
                 };
             }
         }
