@@ -43,9 +43,12 @@ namespace RobnRaid
         public void Execute(IRocketPlayer caller, string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
-            if (!(caller is Player))
             {
                 UnturnedChat.Say("rob_translation"); return;
+            }
+            else
+            {
+                UnturnedChat.Say(player, "rob_usage", Color.yellow);
             }
         }
 
