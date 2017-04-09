@@ -49,7 +49,7 @@ namespace RobnRaid.Commands
             }
             else
             {
-                UnturnedChat.Say(player, "raid_usage", Color.yellow);
+                UnturnedChat.Say(player, "raid_usage");
             }
         }
 
