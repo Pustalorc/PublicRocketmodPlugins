@@ -16,8 +16,8 @@ namespace RobnRaid
             {
                 return new TranslationList()
                 {
-                    { "rob_translation", "{0} is robbing {2} at {3}" },
-                    { "raid_translation", "{0} is raiding a base at {3}" },
+                    { "rob_translation", "{0} is robbing {1} at {2}" },
+                    { "raid_translation", "{0} is raiding a base at {2}" },
                 };
             }
         }
@@ -28,7 +28,6 @@ namespace RobnRaid
 
             color = UnturnedChat.GetColorFromName(Configuration.Instance.Color, Color.green);
             Rocket.Core.Logging.Logger.LogWarning("RobnRaid by Bullet_Tide has been loaded!");
-            UnturnedChat.Say("RobnRaid has been loaded!");
         }
 
         protected override void Unload()
@@ -36,7 +35,6 @@ namespace RobnRaid
             Instance = null;
 
             Rocket.Core.Logging.Logger.LogWarning("RobnRaid has been unloaded!");
-            UnturnedChat.Say("RobnRaid has been unloaded!");
         }
     }
 }
