@@ -97,15 +97,15 @@ namespace RocketTools
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
                         RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
-                        switch (Group)
+                        if (Group == null)
                         {
-                            case null:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[1]));
-                                break;
-                            default:
-                                List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
-                                break;
+                            Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                            return;
+                        }
+                        else if (Group != null)
+                        {
+                            List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
+                            Logger.LogWarning(RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "add")
@@ -267,24 +267,24 @@ namespace RocketTools
                             case "p":
                             case "permission":
                             case "ps":
-                                switch (Group)
+                                if (Group == null)
                                 {
-                                    case null:
-                                        Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
-                                        break;
-                                    default:
-                                        List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
-                                        if (Perms.Count == 0)
-                                        {
-                                            Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_perms"));
-                                            return;
-                                        }
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
-                                        foreach (Permission Perm in Perms)
-                                        {
-                                            Logger.LogWarning(RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
-                                        }
-                                        break;
+                                    Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    return;
+                                }
+                                else if (Group != null)
+                                { 
+                                    List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
+                                    if (Perms.Count == 0)
+                                    {
+                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_perms"));
+                                        return;
+                                    }
+                                    Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
+                                    foreach (Permission Perm in Perms)
+                                    {
+                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
+                                    }
                                 }
                                 break;
                             case "m":
@@ -294,24 +294,24 @@ namespace RocketTools
                             case "memb":
                             case "mems":
                             case "ms":
-                                switch (Group)
+                                if (Group == null)
                                 {
-                                    case null:
-                                        Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
-                                        break;
-                                    default:
-                                        List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
-                                        if (Members.Count == 0)
-                                        {
-                                            Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_players"));
-                                            return;
-                                        }
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_players", command[2]));
-                                        foreach (string Player in Members)
-                                        {
-                                            Logger.LogWarning(RocketTools.Instance.Translate("notification_list_players", Player));
-                                        }
-                                        break;
+                                    Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    return;
+                                }
+                                else if (Group != null)
+                                {
+                                    List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
+                                    if (Members.Count == 0)
+                                    {
+                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_players"));
+                                        return;
+                                    }
+                                    Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_players", command[2]));
+                                    foreach (string Player in Members)
+                                    {
+                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_players", Player));
+                                    }
                                 }
                                 break;
                         }
@@ -392,15 +392,15 @@ namespace RocketTools
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
                         RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
-                        switch (Group)
+                        if (Group == null)
                         {
-                            case null:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[1]));
-                                break;
-                            default:
-                                List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
-                                break;
+                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                            return;
+                        }
+                        else if (Group != null)
+                        {
+                            List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
+                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "add")
@@ -562,24 +562,24 @@ namespace RocketTools
                             case "p":
                             case "permission":
                             case "ps":
-                                switch (Group)
+                                if (Group == null)
                                 {
-                                    case null:
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
-                                        break;
-                                    default:
-                                        List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
-                                        if (Perms.Count == 0)
-                                        {
-                                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_perms"));
-                                            return;
-                                        }
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
-                                        foreach (Permission Perm in Perms)
-                                        {
-                                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
-                                        }
-                                        break;
+                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    return;
+                                }
+                                else if (Group != null)
+                                {
+                                    List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
+                                    if (Perms.Count == 0)
+                                    {
+                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_perms"));
+                                        return;
+                                    }
+                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
+                                    foreach (Permission Perm in Perms)
+                                    {
+                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
+                                    }
                                 }
                                 break;
                             case "m":
@@ -589,24 +589,24 @@ namespace RocketTools
                             case "memb":
                             case "mems":
                             case "ms":
-                                switch (Group)
+                                if (Group == null)
                                 {
-                                    case null:
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
-                                        break;
-                                    default:
-                                        List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
-                                        if (Members.Count == 0)
-                                        {
-                                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_players"));
-                                            return;
-                                        }
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_players", command[2]));
-                                        foreach (string Player in Members)
-                                        {
-                                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_players", Player));
-                                        }
-                                        break;
+                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    return;
+                                }
+                                else if (Group != null)
+                                {
+                                    List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
+                                    if (Members.Count == 0)
+                                    {
+                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_players"));
+                                        return;
+                                    }
+                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_players", command[2]));
+                                    foreach (string Player in Members)
+                                    {
+                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_players", Player));
+                                    }
                                 }
                                 break;
                         }
