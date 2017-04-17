@@ -96,7 +96,8 @@ namespace RocketTools
                     else if (command.Length == 2 && command[0].ToLower() == "details")
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
-                        switch (Permissions.GetGroup(command[1]))
+                        RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
+                        switch (Group)
                         {
                             case null:
                                 Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[1]));
@@ -257,6 +258,7 @@ namespace RocketTools
                     else if (command.Length == 3 && command[0].ToLower() == "list")
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
+                        RocketPermissionsGroup Group = Permissions.GetGroup(command[2]);
                         switch (command[1].ToLower())
                         {
                             case "permissions":
@@ -265,7 +267,7 @@ namespace RocketTools
                             case "p":
                             case "permission":
                             case "ps":
-                                switch (Permissions.GetGroup(command[2]))
+                                switch (Group)
                                 {
                                     case null:
                                         Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
@@ -292,7 +294,7 @@ namespace RocketTools
                             case "memb":
                             case "mems":
                             case "ms":
-                                switch (Permissions.GetGroup(command[2]))
+                                switch (Group)
                                 {
                                     case null:
                                         Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
@@ -389,7 +391,8 @@ namespace RocketTools
                     else if (command.Length == 2 && command[0].ToLower() == "details")
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
-                        switch (Permissions.GetGroup(command[1]))
+                        RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
+                        switch (Group)
                         {
                             case null:
                                 UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[1]));
@@ -550,6 +553,7 @@ namespace RocketTools
                     else if (command.Length == 3 && command[0].ToLower() == "list")
                     {
                         RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
+                        RocketPermissionsGroup Group = Permissions.GetGroup(command[2]);
                         switch (command[1].ToLower())
                         {
                             case "permissions":
@@ -558,7 +562,7 @@ namespace RocketTools
                             case "p":
                             case "permission":
                             case "ps":
-                                switch (Permissions.GetGroup(command[2]))
+                                switch (Group)
                                 {
                                     case null:
                                         UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
@@ -585,7 +589,7 @@ namespace RocketTools
                             case "memb":
                             case "mems":
                             case "ms":
-                                switch (Permissions.GetGroup(command[2]))
+                                switch (Group)
                                 {
                                     case null:
                                         UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));

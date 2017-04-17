@@ -8,7 +8,7 @@ namespace RocketTools
     {
         public static RocketTools Instance;
         public PermissionsHelper URPerm;
-        const string Build = "1";
+        const string Build = "2";
         
         public override TranslationList DefaultTranslations
         {
