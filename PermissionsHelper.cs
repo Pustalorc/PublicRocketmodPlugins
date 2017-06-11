@@ -1,18 +1,15 @@
-﻿using Rocket.API.Serialisation;
+﻿using Rocket.API;
+using Rocket.API.Serialisation;
 using Rocket.Core;
-using Rocket.Core.Permissions;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Player;
 using SDG.Unturned;
-using Steamworks;
-using System;
 using System.Collections.Generic;
 
-namespace RocketTools
+namespace Bloodstone.Systems.RocketTools.Systems
 {
-    public class PermissionsHelper
+    public sealed class PermissionsHelper
     {
-        RocketPermissionsManager Permissions = R.Instance.GetComponent<RocketPermissionsManager>();
+        IRocketPermissionsProvider Permissions = R.Instance.GetComponent<IRocketPermissionsProvider>();
 
         public enum PermissionHelperResult { Success, UnspecifiedError, DuplicateEntry, GroupNotFound, PermissionNotFound, InvalidColor };
 
@@ -235,6 +232,29 @@ namespace RocketTools
             return PermissionHelperResult.UnspecifiedError;
         }
 
+        public PermissionHelperResult SetPriority(short priority, string group)
+        {
+            RocketPermissionsGroup Group = Permissions.GetGroup(group);
+            if (Group != null)
+            {
+                if (Group.Priority != priority)
+                {
+                    Group.Priority = priority;
+                    Permissions.SaveGroup(Group);
+                    return PermissionHelperResult.Success;
+                }
+                else if (Group.Priority == priority)
+                {
+                    return PermissionHelperResult.DuplicateEntry;
+                }
+            }
+            else if (Group == null)
+            {
+                return PermissionHelperResult.GroupNotFound;
+            }
+            return PermissionHelperResult.UnspecifiedError;
+        }
+
         public List<string> GetDetails(string group)
         {
             List<string> Result = new List<string>();
@@ -249,6 +269,7 @@ namespace RocketTools
                 Result.Add(Group.ParentGroup);
                 Result.Add(Group.Members.Count.ToString());
                 Result.Add(Group.Permissions.Count.ToString());
+                Result.Add(Group.Priority.ToString());
             }
             return Result;
         }

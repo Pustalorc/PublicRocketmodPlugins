@@ -1,19 +1,16 @@
-﻿using Rocket.API;
+﻿using Bloodstone.Systems.RocketTools.Systems;
+using Rocket.API;
 using Rocket.API.Serialisation;
 using Rocket.Core;
-using Rocket.Core.Assets;
 using Rocket.Core.Logging;
 using Rocket.Core.Permissions;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Player;
-using SDG.Unturned;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
-namespace RocketTools
+namespace Bloodstone.Plugins.RocketTools
 {
-    public class CommandRPerm : IRocketCommand
+    public sealed class CommandRPerm : IRocketCommand
     {
         public AllowedCaller AllowedCaller
         {
@@ -32,7 +29,7 @@ namespace RocketTools
 
         public string Syntax
         {
-            get { return "create <group> | delete <group> | add <permission> <group> | remove <permission> <group> | add <permission> <cooldown> <group> | color <color> <group> | prefix <prefix> <group> | suffix <suffix> <group> | displayname <name> <group> | id <id> <group> | parentgroup <parent group> <group> | list <permissions | members> <group> | details <group>"; }
+            get { return "create <group> | delete <group> | add <permission> <group> | remove <permission> <group> | add <permission> <cooldown> <group> | color <color> <group> | prefix <prefix> <group> | suffix <suffix> <group> | displayname <name> <group> | id <id> <group> | parentgroup <parent group> <group> | list <permissions | members> <group> | details <group> | priority <priority> <group>"; }
         }
 
         public List<string> Aliases
@@ -42,13 +39,343 @@ namespace RocketTools
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
-            if (RocketTools.Instance.Configuration.Instance.EnableRPermCommand)
+            if (Main.Instance.Configuration.Instance.EnableRPermCommand)
+            {
+                if (command.Length <= 1)
+                {
+                    UnturnedChat.Say(caller, Main.Instance.Translate("error_usage_rperm"));
+                }
+                else if (command.Length == 2 && command[0].ToLower() == "create")
+                {
+                    IRocketPermissionsProvider Permissions = R.Instance.GetComponent<IRocketPermissionsProvider>();
+                    RocketPermissionsGroup NewGroup = new RocketPermissionsGroup(command[1], command[1], "", new List<string>(), new List<Permission>(), "white");
+                    NewGroup.Prefix = "";
+                    NewGroup.Suffix = "";
+                    RocketPermissionsGroup OldGroup = Permissions.GetGroup(command[1]);
+                    if (OldGroup == null)
+                    {
+                        switch (Permissions.AddGroup(NewGroup))
+                        {
+                            case RocketPermissionsProviderResult.DuplicateEntry:
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_group", command[1]));
+                                break;
+                            case RocketPermissionsProviderResult.Success:
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_success_group_create", command[1]));
+                                break;
+                            default:
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                                break;
+                        }
+                    }
+                    else if (OldGroup != null)
+                    {
+                        UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_group", command[1]));
+                    }
+                }
+                else if (command.Length == 2 && command[0].ToLower() == "delete")
+                {
+                    IRocketPermissionsProvider Permissions = R.Instance.GetComponent<IRocketPermissionsProvider>();
+                    switch (Permissions.DeleteGroup(command[1]))
+                    {
+                        case RocketPermissionsProviderResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[1]));
+                            break;
+                        case RocketPermissionsProviderResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_success_group_delete", command[1]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 2 && command[0].ToLower() == "details")
+                {
+                    IRocketPermissionsProvider Permissions = R.Instance.GetComponent<IRocketPermissionsProvider>();
+                    RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
+                    if (Group == null)
+                    {
+                        UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[1]));
+                        return;
+                    }
+                    else if (Group != null)
+                    {
+                        List<string> details = Main.Instance.URPerm.GetDetails(command[1]);
+                        UnturnedChat.Say(caller, Main.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[8], details[6], details[7]));
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "add")
+                {
+                    switch (Main.Instance.URPerm.AddPermission(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_added", command[1], command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_permission", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "remove")
+                {
+                    switch (Main.Instance.URPerm.RemovePermission(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_removed", command[1], command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.PermissionNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_permission", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "color")
+                {
+                    switch (Main.Instance.URPerm.SetColor(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_color_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_color", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.InvalidColor:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_invalid_color", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "prefix")
+                {
+                    switch (Main.Instance.URPerm.SetPrefix(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_prefix_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_prefix", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "suffix")
+                {
+                    switch (Main.Instance.URPerm.SetSuffix(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_suffix_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_suffix", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "displayname")
+                {
+                    switch (Main.Instance.URPerm.SetDisplayName(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_displayname_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_displayname", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "id")
+                {
+                    switch (Main.Instance.URPerm.SetID(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_id_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_id", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "parentgroup")
+                {
+                    switch (Main.Instance.URPerm.SetParentGroup(command[1], command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_parentgroup_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_parentgroup", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "list")
+                {
+                    IRocketPermissionsProvider Permissions = R.Instance.GetComponent<IRocketPermissionsProvider>();
+                    RocketPermissionsGroup Group = Permissions.GetGroup(command[2]);
+                    switch (command[1].ToLower())
+                    {
+                        case "permissions":
+                        case "perms":
+                        case "perm":
+                        case "p":
+                        case "permission":
+                        case "ps":
+                            if (Group == null)
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                                return;
+                            }
+                            else if (Group != null)
+                            {
+                                List<Permission> Perms = Main.Instance.URPerm.GetPermissions(command[2]);
+                                if (Perms.Count == 0)
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_no_perms"));
+                                    return;
+                                }
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_start_perms", command[2]));
+                                foreach (Permission Perm in Perms)
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
+                                }
+                            }
+                            break;
+                        case "m":
+                        case "members":
+                        case "mem":
+                        case "membs":
+                        case "memb":
+                        case "mems":
+                        case "ms":
+                            if (Group == null)
+                            {
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                                return;
+                            }
+                            else if (Group != null)
+                            {
+                                List<string> Members = Main.Instance.URPerm.GetMembers(command[2]);
+                                if (Members.Count == 0)
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_no_players"));
+                                    return;
+                                }
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_start_players", command[2]));
+                                foreach (string Player in Members)
+                                {
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_players", Player));
+                                }
+                            }
+                            break;
+                    }
+                }
+                else if (command.Length == 3 && command[0].ToLower() == "priority")
+                {
+                    short Result;
+                    bool isNumber = short.TryParse(command[1], out Result);
+                    if (!isNumber)
+                    {
+                        UnturnedChat.Say(caller, Main.Instance.Translate("error_invalid_number", command[1]));
+                        return;
+                    }
+
+                    switch (Main.Instance.URPerm.SetPriority(Result, command[2]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_priority_change", command[2]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_same_priority", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else if (command.Length == 4 && command[0].ToLower() == "add")
+                {
+                    switch (Main.Instance.URPerm.AddPermission(command[1], Convert.ToUInt32(command[2]), command[3]))
+                    {
+                        case PermissionsHelper.PermissionHelperResult.Success:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_added", command[1], command[3]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_permission", command[1]));
+                            break;
+                        case PermissionsHelper.PermissionHelperResult.GroupNotFound:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[3]));
+                            break;
+                        default:
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
+                            break;
+                    }
+                }
+                else
+                {
+                    UnturnedChat.Say(caller, Main.Instance.Translate("error_usage_rperm"));
+                }
+            }
+            else if (!Main.Instance.Configuration.Instance.EnableRPermCommand)
+            {
+                UnturnedChat.Say(caller, Main.Instance.Translate("error_command_disabled"));
+            }
+        }
+
+        [Obsolete("Replaced with new Execute which works more cleanly.")]
+        public void OldExecute(IRocketPlayer caller, string[] command)
+        {
+            if (Main.Instance.Configuration.Instance.EnableRPermCommand)
             {
                 if (caller is ConsolePlayer)
                 {
                     if (command.Length <= 1)
                     {
-                        Logger.LogWarning(RocketTools.Instance.Translate("error_usage_rperm"));
+                        Logger.LogWarning(Main.Instance.Translate("error_usage_rperm"));
                     }
                     else if (command.Length == 2 && command[0].ToLower() == "create")
                     {
@@ -62,19 +389,19 @@ namespace RocketTools
                             switch (Permissions.AddGroup(NewGroup))
                             {
                                 case RocketPermissionsProviderResult.DuplicateEntry:
-                                    Logger.LogWarning(RocketTools.Instance.Translate("error_duplicate_group", command[1]));
+                                    Logger.LogWarning(Main.Instance.Translate("error_duplicate_group", command[1]));
                                     break;
                                 case RocketPermissionsProviderResult.Success:
-                                    Logger.LogWarning(RocketTools.Instance.Translate("notification_success_group_create", command[1]));
+                                    Logger.LogWarning(Main.Instance.Translate("notification_success_group_create", command[1]));
                                     break;
                                 default:
-                                    Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                    Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                     break;
                             }
                         }
                         else if (OldGroup != null)
                         {
-                            Logger.LogWarning(RocketTools.Instance.Translate("error_duplicate_group", command[1]));
+                            Logger.LogWarning(Main.Instance.Translate("error_duplicate_group", command[1]));
                         }
                     }
                     else if (command.Length == 2 && command[0].ToLower() == "delete")
@@ -83,13 +410,13 @@ namespace RocketTools
                         switch (Permissions.DeleteGroup(command[1]))
                         {
                             case RocketPermissionsProviderResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[1]));
                                 break;
                             case RocketPermissionsProviderResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_success_group_delete", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_success_group_delete", command[1]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
@@ -99,159 +426,159 @@ namespace RocketTools
                         RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
                         if (Group == null)
                         {
-                            Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                            Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[1]));
                             return;
                         }
                         else if (Group != null)
                         {
-                            List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
-                            Logger.LogWarning(RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
+                            List<string> details = Main.Instance.URPerm.GetDetails(command[1]);
+                            Logger.LogWarning(Main.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "add")
                     {
-                        switch (RocketTools.Instance.URPerm.AddPermission(command[1], command[2]))
+                        switch (Main.Instance.URPerm.AddPermission(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_permission_added", command[1], command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_permission_added", command[1], command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_duplicate_permission", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_duplicate_permission", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "remove")
                     {
-                        switch (RocketTools.Instance.URPerm.RemovePermission(command[1], command[2]))
+                        switch (Main.Instance.URPerm.RemovePermission(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_permission_removed", command[1], command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_permission_removed", command[1], command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.PermissionNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_permission", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_permission", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "color")
                     {
-                        switch (RocketTools.Instance.URPerm.SetColor(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetColor(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_color_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_color_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_color", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_color", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.InvalidColor:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_invalid_color", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_invalid_color", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "prefix")
                     {
-                        switch (RocketTools.Instance.URPerm.SetPrefix(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetPrefix(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_prefix_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_prefix_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_prefix", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_prefix", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "suffix")
                     {
-                        switch (RocketTools.Instance.URPerm.SetSuffix(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetSuffix(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_suffix_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_suffix_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_suffix", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_suffix", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "displayname")
                     {
-                        switch (RocketTools.Instance.URPerm.SetDisplayName(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetDisplayName(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_displayname_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_displayname_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_displayname", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_displayname", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "id")
                     {
-                        switch (RocketTools.Instance.URPerm.SetID(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetID(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_id_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_id_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_id", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_id", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "parentgroup")
                     {
-                        switch (RocketTools.Instance.URPerm.SetParentGroup(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetParentGroup(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_parentgroup_change", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_parentgroup_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_same_parentgroup", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_same_parentgroup", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
@@ -269,21 +596,21 @@ namespace RocketTools
                             case "ps":
                                 if (Group == null)
                                 {
-                                    Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                     return;
                                 }
                                 else if (Group != null)
                                 { 
-                                    List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
+                                    List<Permission> Perms = Main.Instance.URPerm.GetPermissions(command[2]);
                                     if (Perms.Count == 0)
                                     {
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_perms"));
+                                        Logger.LogWarning(Main.Instance.Translate("notification_list_no_perms"));
                                         return;
                                     }
-                                    Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
+                                    Logger.LogWarning(Main.Instance.Translate("notification_list_start_perms", command[2]));
                                     foreach (Permission Perm in Perms)
                                     {
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
+                                        Logger.LogWarning(Main.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
                                     }
                                 }
                                 break;
@@ -296,21 +623,21 @@ namespace RocketTools
                             case "ms":
                                 if (Group == null)
                                 {
-                                    Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[2]));
                                     return;
                                 }
                                 else if (Group != null)
                                 {
-                                    List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
+                                    List<string> Members = Main.Instance.URPerm.GetMembers(command[2]);
                                     if (Members.Count == 0)
                                     {
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_no_players"));
+                                        Logger.LogWarning(Main.Instance.Translate("notification_list_no_players"));
                                         return;
                                     }
-                                    Logger.LogWarning(RocketTools.Instance.Translate("notification_list_start_players", command[2]));
+                                    Logger.LogWarning(Main.Instance.Translate("notification_list_start_players", command[2]));
                                     foreach (string Player in Members)
                                     {
-                                        Logger.LogWarning(RocketTools.Instance.Translate("notification_list_players", Player));
+                                        Logger.LogWarning(Main.Instance.Translate("notification_list_players", Player));
                                     }
                                 }
                                 break;
@@ -318,32 +645,32 @@ namespace RocketTools
                     }
                     else if (command.Length == 4 && command[0].ToLower() == "add")
                     {
-                        switch (RocketTools.Instance.URPerm.AddPermission(command[1], Convert.ToUInt32(command[2]), command[3]))
+                        switch (Main.Instance.URPerm.AddPermission(command[1], Convert.ToUInt32(command[2]), command[3]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                Logger.LogWarning(RocketTools.Instance.Translate("notification_permission_added", command[1], command[3]));
+                                Logger.LogWarning(Main.Instance.Translate("notification_permission_added", command[1], command[3]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_duplicate_permission", command[1]));
+                                Logger.LogWarning(Main.Instance.Translate("error_duplicate_permission", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_notfound_group", command[3]));
+                                Logger.LogWarning(Main.Instance.Translate("error_notfound_group", command[3]));
                                 break;
                             default:
-                                Logger.LogWarning(RocketTools.Instance.Translate("error_unknown"));
+                                Logger.LogWarning(Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else
                     {
-                        Logger.LogWarning(RocketTools.Instance.Translate("error_usage_rperm"));
+                        Logger.LogWarning(Main.Instance.Translate("error_usage_rperm"));
                     }
                 }
                 else if (!(caller is ConsolePlayer))
                 {
                     if (command.Length <= 1)
                     {
-                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_usage_rperm"));
+                        UnturnedChat.Say(caller, Main.Instance.Translate("error_usage_rperm"));
                     }
                     else if (command.Length == 2 && command[0].ToLower() == "create")
                     {
@@ -357,19 +684,19 @@ namespace RocketTools
                             switch (Permissions.AddGroup(NewGroup))
                             {
                                 case RocketPermissionsProviderResult.DuplicateEntry:
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_duplicate_group", command[1]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_group", command[1]));
                                     break;
                                 case RocketPermissionsProviderResult.Success:
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_success_group_create", command[1]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_success_group_create", command[1]));
                                     break;
                                 default:
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                     break;
                             }
                         }
                         else if (OldGroup != null)
                         {
-                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_duplicate_group", command[1]));
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_group", command[1]));
                         }
                     }
                     else if (command.Length == 2 && command[0].ToLower() == "delete")
@@ -378,13 +705,13 @@ namespace RocketTools
                         switch (Permissions.DeleteGroup(command[1]))
                         {
                             case RocketPermissionsProviderResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[1]));
                                 break;
                             case RocketPermissionsProviderResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_success_group_delete", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_success_group_delete", command[1]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
@@ -394,159 +721,159 @@ namespace RocketTools
                         RocketPermissionsGroup Group = Permissions.GetGroup(command[1]);
                         if (Group == null)
                         {
-                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[1]));
+                            UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[1]));
                             return;
                         }
                         else if (Group != null)
                         {
-                            List<string> details = RocketTools.Instance.URPerm.GetDetails(command[1]);
-                            UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
+                            List<string> details = Main.Instance.URPerm.GetDetails(command[1]);
+                            UnturnedChat.Say(caller, Main.Instance.Translate("notification_details_group", details[0], details[1], details[2], details[3], details[4], details[5], details[6], details[7]));
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "add")
                     {
-                        switch (RocketTools.Instance.URPerm.AddPermission(command[1], command[2]))
+                        switch (Main.Instance.URPerm.AddPermission(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_permission_added", command[1], command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_added", command[1], command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_duplicate_permission", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_permission", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "remove")
                     {
-                        switch (RocketTools.Instance.URPerm.RemovePermission(command[1], command[2]))
+                        switch (Main.Instance.URPerm.RemovePermission(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_permission_removed", command[1], command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_removed", command[1], command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.PermissionNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_permission", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_permission", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "color")
                     {
-                        switch (RocketTools.Instance.URPerm.SetColor(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetColor(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_color_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_color_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_color", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_color", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.InvalidColor:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_invalid_color", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_invalid_color", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "prefix")
                     {
-                        switch (RocketTools.Instance.URPerm.SetPrefix(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetPrefix(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_prefix_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_prefix_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_prefix", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_prefix", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "suffix")
                     {
-                        switch (RocketTools.Instance.URPerm.SetSuffix(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetSuffix(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_suffix_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_suffix_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_suffix", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_suffix", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "displayname")
                     {
-                        switch (RocketTools.Instance.URPerm.SetDisplayName(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetDisplayName(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_displayname_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_displayname_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_displayname", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_displayname", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "id")
                     {
-                        switch (RocketTools.Instance.URPerm.SetID(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetID(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_id_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_id_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_id", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_id", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else if (command.Length == 3 && command[0].ToLower() == "parentgroup")
                     {
-                        switch (RocketTools.Instance.URPerm.SetParentGroup(command[1], command[2]))
+                        switch (Main.Instance.URPerm.SetParentGroup(command[1], command[2]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_parentgroup_change", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_parentgroup_change", command[2]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_same_parentgroup", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_same_parentgroup", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
@@ -564,21 +891,21 @@ namespace RocketTools
                             case "ps":
                                 if (Group == null)
                                 {
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                     return;
                                 }
                                 else if (Group != null)
                                 {
-                                    List<Permission> Perms = RocketTools.Instance.URPerm.GetPermissions(command[2]);
+                                    List<Permission> Perms = Main.Instance.URPerm.GetPermissions(command[2]);
                                     if (Perms.Count == 0)
                                     {
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_perms"));
+                                        UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_no_perms"));
                                         return;
                                     }
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_perms", command[2]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_start_perms", command[2]));
                                     foreach (Permission Perm in Perms)
                                     {
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
+                                        UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_perms", Perm.Name, Perm.Cooldown));
                                     }
                                 }
                                 break;
@@ -591,21 +918,21 @@ namespace RocketTools
                             case "ms":
                                 if (Group == null)
                                 {
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[2]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[2]));
                                     return;
                                 }
                                 else if (Group != null)
                                 {
-                                    List<string> Members = RocketTools.Instance.URPerm.GetMembers(command[2]);
+                                    List<string> Members = Main.Instance.URPerm.GetMembers(command[2]);
                                     if (Members.Count == 0)
                                     {
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_no_players"));
+                                        UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_no_players"));
                                         return;
                                     }
-                                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_start_players", command[2]));
+                                    UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_start_players", command[2]));
                                     foreach (string Player in Members)
                                     {
-                                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_list_players", Player));
+                                        UnturnedChat.Say(caller, Main.Instance.Translate("notification_list_players", Player));
                                     }
                                 }
                                 break;
@@ -613,29 +940,29 @@ namespace RocketTools
                     }
                     else if (command.Length == 4 && command[0].ToLower() == "add")
                     {
-                        switch (RocketTools.Instance.URPerm.AddPermission(command[1], Convert.ToUInt32(command[2]), command[3]))
+                        switch (Main.Instance.URPerm.AddPermission(command[1], Convert.ToUInt32(command[2]), command[3]))
                         {
                             case PermissionsHelper.PermissionHelperResult.Success:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("notification_permission_added", command[1], command[3]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("notification_permission_added", command[1], command[3]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.DuplicateEntry:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_duplicate_permission", command[1]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_duplicate_permission", command[1]));
                                 break;
                             case PermissionsHelper.PermissionHelperResult.GroupNotFound:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_notfound_group", command[3]));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_notfound_group", command[3]));
                                 break;
                             default:
-                                UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_unknown"));
+                                UnturnedChat.Say(caller, Main.Instance.Translate("error_unknown"));
                                 break;
                         }
                     }
                     else
                     {
-                        UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_usage_rperm"));
+                        UnturnedChat.Say(caller, Main.Instance.Translate("error_usage_rperm"));
                     }
                 }
             }
-            else if (!RocketTools.Instance.Configuration.Instance.EnableRPermCommand)
+            else if (!Main.Instance.Configuration.Instance.EnableRPermCommand)
             {
                 if (caller is ConsolePlayer)
                 {
@@ -643,7 +970,7 @@ namespace RocketTools
                 }
                 else if (!(caller is ConsolePlayer))
                 {
-                    UnturnedChat.Say(caller, RocketTools.Instance.Translate("error_command_disabled"));
+                    UnturnedChat.Say(caller, Main.Instance.Translate("error_command_disabled"));
                 }
             }
         }

@@ -1,15 +1,13 @@
 ﻿using Rocket.API;
 
-namespace RocketTools
+namespace Bloodstone.Plugins.RocketTools
 {
-    public class NobStartConfiguration : IRocketPluginConfiguration
+    public sealed class Configuration : IRocketPluginConfiguration
     {
-        public bool EnablePlugin;
         public bool EnableRPermCommand;
 
         public void LoadDefaults()
         {
-            EnablePlugin = true;
             EnableRPermCommand = true;
         }
     }

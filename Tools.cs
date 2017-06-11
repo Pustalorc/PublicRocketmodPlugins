@@ -1,14 +1,14 @@
-﻿using Rocket.API;
+﻿using Bloodstone.Systems.RocketTools.Systems;
 using Rocket.API.Collections;
 using Rocket.Core.Plugins;
 
-namespace RocketTools
+namespace Bloodstone.Plugins.RocketTools
 {
-    public class RocketTools : RocketPlugin<NobStartConfiguration>
+    public sealed class Main : RocketPlugin<Configuration>
     {
-        public static RocketTools Instance;
+        public static Main Instance;
         public PermissionsHelper URPerm;
-        const string Build = "3";
+        const string Build = "4";
         
         public override TranslationList DefaultTranslations
         {
@@ -27,8 +27,9 @@ namespace RocketTools
                     { "error_same_id", "The group {0} already has that ID or another group already exists with that name!" },
                     { "error_same_displayname", "The group {0} already has that display name!" },
                     { "error_invalid_color", "The color {0} is invalid." },
+                    { "error_invalid_number", "{0} is not a number!" },
                     { "error_unknown", "An unknown error has happened! O.O" },
-                    { "error_command_disabled", "That command has been disabled by the server." },
+                    { "error_command_disabled", "That command has been disabled by the server in the configuration." },
                     { "notification_success_group_create", "Permission group {0} was created successfully!" },
                     { "notification_success_group_delete", "Permission group {0} was deleted successfully!" },
                     { "notification_permission_added", "Permission {0} was added to the group {1}." },
@@ -39,7 +40,7 @@ namespace RocketTools
                     { "notification_parentgroup_change", "Parent group was changed for the group {0}." },
                     { "notification_id_change", "ID was changed for the group {0}." },
                     { "notification_displayname_change", "Display name was changed for the group {0}." },
-                    { "notification_details_group", "ID: {0}, Display Name: {1}, Prefix: {2}, Suffix: {3}, Color: {4}, Parent Group: {5}, {6} Members and {7} Permissions." },
+                    { "notification_details_group", "ID: {0}, Display Name: {1}, Prefix: {2}, Suffix: {3}, Color: {4}, Parent Group: {5}, Priority: {6}, {7} Members and {8} Permissions." },
                     { "notification_list_start_players", "Players in {0}:" },
                     { "notification_list_start_perms", "Permissions in {0}:" },
                     { "notification_list_perms", "Permission: {0}, Cooldown: {1}." },
@@ -53,11 +54,7 @@ namespace RocketTools
         protected override void Load()
         {
             Instance = this;
-            if (!Configuration.Instance.EnablePlugin)
-            {
-                UnloadPlugin(PluginState.Cancelled);
-                return;
-            }
+
             URPerm = new PermissionsHelper();
 
             Rocket.Core.Logging.Logger.LogWarning("RocketTools by persiafighter, build #" + Build + " has been loaded!");
@@ -66,10 +63,8 @@ namespace RocketTools
         protected override void Unload()
         {
             Instance = null;
-            if (Configuration.Instance.EnablePlugin)
-            {
-                URPerm = null;
-            }
+
+            URPerm = null;
 
             Rocket.Core.Logging.Logger.LogWarning("RocketTools has been unloaded!");
         }
