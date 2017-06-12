@@ -11,14 +11,7 @@ namespace EFG.Duty
         {
             if (command.Length == 0)
             {
-                if (caller is ConsolePlayer)
-                {
-                    Rocket.Core.Logging.Logger.LogWarning("No argument was specified. Please use \"dc <playername>\" to check on a player.");
-                }
-                else if (caller is UnturnedPlayer)
-                {
-                    UnturnedChat.Say(caller, "No argument was given. Please use \"/dc <playername>\" to check a player.");
-                }
+                UnturnedChat.Say(caller, Duty.Instance.Translate("error_dc_usage"));
             }
             else if (command.Length > 0)
             {

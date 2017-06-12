@@ -10,11 +10,22 @@ namespace EFG.Duty
         {
             if (caller == null) return;
             UnturnedPlayer player = (UnturnedPlayer)caller;
-            if (caller.HasPermission("duty.superadmin")) Duty.Instance.DoDuty(player);
-            else if (caller.HasPermission("duty.admin")) Duty.Instance.Admin(caller);
-            else if (caller.HasPermission("duty.moderator")) Duty.Instance.Moderator(caller);
-            else if (caller.HasPermission("duty.helper")) Duty.Instance.Helper(caller);
-            else if (caller.HasPermission("duty")) Rocket.Unturned.Chat.UnturnedChat.Say(caller, Duty.Instance.Translate("not_enough_permissions"));
+            if (caller.HasPermission(Duty.Instance.Configuration.Instance.SuperAdminPermission))
+            {
+                Duty.Instance.DoDuty(player);
+                return;
+            }
+
+            foreach (DutyGroups Group in Duty.Instance.ValidGroups)
+            {
+                if (caller.HasPermission(Group.Permission))
+                {
+                    Duty.Instance.DoDuty(player, Group);
+                    return;
+                }
+            }
+
+            if (caller.HasPermission("duty")) Rocket.Unturned.Chat.UnturnedChat.Say(caller, Duty.Instance.Translate("not_enough_permissions"));
         }
 
         public string Help
@@ -32,11 +43,6 @@ namespace EFG.Duty
             get { return ""; }
         }
 
-        public bool AllowFromConsole
-        {
-            get { return false; }
-        }
-
         public AllowedCaller AllowedCaller
         {
             get { return AllowedCaller.Player; }
@@ -51,7 +57,7 @@ namespace EFG.Duty
         {
             get
             {
-                return new List<string>() { "duty.superadmin", "duty.admin", "duty.moderator", "duty.helper" };
+                return new List<string>() { "duty" };
             }
         }
     }
